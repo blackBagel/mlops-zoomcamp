@@ -10,6 +10,7 @@ cloudpickle = "*"
 mlflow = "*"
 ipython = "*"
 jupyter = "*"
+click = "*"
 
 [dev-packages]
 
