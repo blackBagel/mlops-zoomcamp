@@ -17,6 +17,8 @@ services:
       - "5432:5432"
     networks:
       - back-tier
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
 
   adminer:
     image: adminer
