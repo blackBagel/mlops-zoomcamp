@@ -161,3 +161,4 @@ cython_debug/
 
 # Data files
 *.parquet
+05-monitoring/debugging_nyc_taxi_data.ipynb
