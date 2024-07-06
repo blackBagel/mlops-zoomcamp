@@ -43,6 +43,11 @@ def get_output_path(year, month):
     output_pattern = os.getenv('OUTPUT_FILE_PATTERN', default_output_pattern)
     return output_pattern.format(year=year, month=month)
 
+def save_data(df, output_file):
+    if S3_ENDPOINT_URL:
+        df.to_parquet(output_file, engine='pyarrow', index=False, storage_options=read_parquet_options)
+    else:
+        df.to_parquet(output_file, engine='pyarrow', index=False)
 
 def main(year, month):
 
@@ -72,10 +77,7 @@ def main(year, month):
     df_result['ride_id'] = df['ride_id']
     df_result['predicted_duration'] = y_pred
 
-    if S3_ENDPOINT_URL:
-        df_result.to_parquet(output_file, engine='pyarrow', index=False, storage_options=read_parquet_options)
-    else:
-        df_result.to_parquet(output_file, engine='pyarrow', index=False)
+    save_data(df_result, output_file=output_file)
 
 if __name__ == '__main__':
     year = int(sys.argv[1])
