@@ -1,9 +1,17 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+import os
 import sys
 import pickle
 import pandas as pd
+
+S3_ENDPOINT_URL = os.getenv('S3_ENDPOINT_URL', 'http://localhost:4566')
+read_parquet_options = {
+    'client_kwargs': {
+        'endpoint_url': S3_ENDPOINT_URL
+    }
+}
 
 def prepare_data(df, categorical):
     df['duration'] = df.tpep_dropoff_datetime - df.tpep_pickup_datetime
@@ -16,7 +24,7 @@ def prepare_data(df, categorical):
     return df
 
 def read_data(filename, categorical):
-    df = pd.read_parquet(filename)
+    df = pd.read_parquet(filename, storage_options=read_parquet_options)
     df = prepare_data(df, categorical)
     
     return df
@@ -62,7 +70,7 @@ def main(year, month):
     df_result['predicted_duration'] = y_pred
 
 
-    df_result.to_parquet(output_file, engine='pyarrow', index=False)
+    df_result.to_parquet(output_file, engine='pyarrow', index=False, storage_options=read_parquet_options)
 
 if __name__ == '__main__':
     year = int(sys.argv[1])
