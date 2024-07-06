@@ -6,7 +6,7 @@ import sys
 import pickle
 import pandas as pd
 
-S3_ENDPOINT_URL = os.getenv('S3_ENDPOINT_URL', 'http://localhost:4566')
+S3_ENDPOINT_URL = os.getenv('S3_ENDPOINT_URL', None)
 read_parquet_options = {
     'client_kwargs': {
         'endpoint_url': S3_ENDPOINT_URL
@@ -24,7 +24,10 @@ def prepare_data(df, categorical):
     return df
 
 def read_data(filename, categorical):
-    df = pd.read_parquet(filename, storage_options=read_parquet_options)
+    if S3_ENDPOINT_URL:
+        df = pd.read_parquet(filename, storage_options=read_parquet_options)
+    else:
+        df = pd.read_parquet(filename)
     df = prepare_data(df, categorical)
     
     return df
@@ -69,8 +72,10 @@ def main(year, month):
     df_result['ride_id'] = df['ride_id']
     df_result['predicted_duration'] = y_pred
 
-
-    df_result.to_parquet(output_file, engine='pyarrow', index=False, storage_options=read_parquet_options)
+    if S3_ENDPOINT_URL:
+        df_result.to_parquet(output_file, engine='pyarrow', index=False, storage_options=read_parquet_options)
+    else:
+        df_result.to_parquet(output_file, engine='pyarrow', index=False)
 
 if __name__ == '__main__':
     year = int(sys.argv[1])
